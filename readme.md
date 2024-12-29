@@ -125,9 +125,11 @@ err := groot.WalkFromRoot(func(path string, d fs.DirEntry, err error) error {
 - `SetRootNoEnv(entryFile string) error` - Set root without env files
 - `SetRootFromEnv(entryFile string) error` - Set root using env file
 - `SetRootFromGit() error` - Set root using Git repository
+- `SetRootFromPath(path string) error` - Set root from absolute or relative path
 - `GetRoot() string` - Get current root directory
 - `MustGetRoot() string` - Get root directory or panic
 - `ClearRoot()` - Clear root setting
+- `IsTemporary() bool` - Check if current execution context is temporary
 
 ### Path Operations
 

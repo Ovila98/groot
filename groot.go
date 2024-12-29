@@ -178,6 +178,37 @@ func SetRootFromGit() error {
 	return nil
 }
 
+// SetRootFromPath sets the root directory from the given path.
+// If path is absolute, sets root to that path.
+// If path is relative, resolves it from the project directory.
+// Returns error if path is empty, invalid, or does not exist.
+func SetRootFromPath(path string) error {
+	path = strings.TrimSpace(path)
+	if path == "" {
+		return ers.New("path cannot be empty")
+	}
+
+	if !filepath.IsAbs(path) {
+		projectDir, err := GetProjectDir()
+		if err != nil {
+			return ers.Wrap(err)
+		}
+		path = filepath.Join(projectDir, path)
+	}
+
+	fi, err := os.Stat(path)
+	if err != nil {
+		return ers.Wrap(err)
+	}
+
+	if !fi.IsDir() {
+		return ers.New("path is not a directory")
+	}
+
+	os.Setenv(grootEnv, path)
+	return nil
+}
+
 // GetRoot returns the current project root directory.
 // Returns empty string if not set.
 func GetRoot() string {
@@ -274,6 +305,13 @@ func IsRoot(path string) bool {
 	cleanPath := ensureCleanPath(path)
 	cleanRoot := ensureCleanPath(root)
 	return cleanPath == cleanRoot
+}
+
+// IsTemporary checks wether the current execution context is temporary.
+// (i.e. if 'go run' has been called).
+func IsTemporary() bool {
+	executable, _ := os.Executable()
+	return strings.Contains(executable, "go-build")
 }
 
 // GetRootParent returns the parent directory of the project root.
